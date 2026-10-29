@@ -4,21 +4,30 @@
 """
 import argparse, json, os, shlex, subprocess
 
-def sh(cmd, timeout=3600):
-    p = subprocess.run(cmd, capture_output=True, text=True)
+def sh(cmd, timeout=900):
+    p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     if p.returncode != 0:
         raise RuntimeError(f"cmd failed: {' '.join(shlex.quote(c) for c in cmd[:6])} ...\n{p.stderr[-1500:]}")
     return p
 
 def zoompan_filter(idx, dur, fps, w, h, direction):
-    frames = max(2, int(dur * fps))
-    if direction == "in":   z = "min(1.0+0.0016*on,1.14)"
-    elif direction == "out": z = "max(1.14-0.0016*on,1.0)"
-    else:                    z = "1.06"
-    x = f"iw/2-(iw/zoom/2)"; y = f"ih/2-(ih/zoom/2)"
+    """إطار واحد ثابت ← N إطاراً متحركاً.
+
+    تحذير تشغيلي مهم: لا تستخدم -loop 1 مع zoompan. مع d>1 يُنتج zoompan
+    d إطاراً *لكل إطار إدخال*، فيتضاعف العدد بلا نهاية ويعلّق التجميع.
+    الحل: إطار واحد فقط + d = عدد الإطارات المطلوبة، والتكبير عبر متغيّر zoom.
+    """
+    frames = max(2, int(round(dur * fps)))
+    if direction == "in":
+        z = "min(zoom+0.0012,1.14)"
+    elif direction == "out":
+        z = "if(eq(on,1),1.14,max(zoom-0.0012,1.0))"
+    else:
+        z = "1.04"
+    x = "iw/2-(iw/zoom/2)"; y = "ih/2-(ih/zoom/2)"
     return (f"[{idx}:v]scale={w*2}:{h*2}:force_original_aspect_ratio=increase,"
             f"crop={w*2}:{h*2},zoompan=z='{z}':x='{x}':y='{y}':d={frames}:s={w}x{h}:fps={fps},"
-            f"setsar=1[v{idx}]")
+            f"trim=duration={dur},setpts=PTS-STARTPTS,setsar=1[v{idx}]")
 
 def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, fps=24, w=1920, h=1080):
     tl = json.load(open(timeline_path, encoding="utf-8"))
@@ -27,7 +36,7 @@ def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, f
         raise SystemExit("لا توجد مقاطع بأصول — لم يُنتج ملف")
     inputs, filters, concat_in = [], [], []
     for i, c in enumerate(clips):
-        inputs += ["-loop", "1", "-t", str(c["duration"]), "-i", c["asset"]]
+        inputs += ["-i", c["asset"]]
         direction = ["in", "out", "none"][i % 3]
         filters.append(zoompan_filter(i, c["duration"], fps, w, h, direction))
         concat_in.append(f"[v{i}]")
@@ -59,7 +68,8 @@ def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, f
         cmd += ["-map", f"{aidx}:a"]
     elif music:
         cmd += ["-map", f"{midx}:a"]
-    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
+    total = sum(float(c["duration"]) for c in clips)
+    cmd += ["-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
             "-r", str(fps), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out_path]
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     sh(cmd)

@@ -68,8 +68,9 @@ jobs:
         run: |
           python3 -m pipeline.edit.timeline_build --shotlist 02_script/shotlist.json --visuals 04_visuals --out 05_edit/timeline.json
           python3 -m pipeline.edit.otio_export --timeline 05_edit/timeline.json --outdir 05_edit
-          python3 -m pipeline.edit.assemble --timeline 05_edit/timeline.json --out 05_edit/assembly_v1.mp4 \
+          timeout 600 python3 -m pipeline.edit.assemble --timeline 05_edit/timeline.json --out 05_edit/assembly_v1.mp4 \
             --audio 03_audio/placeholder_tone.wav --lut 05_edit/noir.cube --srt 05_edit/assembly.srt
+          ffprobe -v error -show_entries format=duration,size -of json 05_edit/assembly_v1.mp4
       - name: "9 deliver report"
         run: |
           mkdir -p 06_final
