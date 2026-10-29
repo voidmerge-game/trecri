@@ -1,0 +1,30 @@
+name: check
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 50 units + locked rules
+        run: |
+          python3 - <<'PY'
+          import json
+          u=json.load(open('catalog/units.json')); s=json.load(open('state.json'))
+          assert len(u)==50, f"expected 50 got {len(u)}"
+          assert len({x['id'] for x in u})==50, "duplicate ids"
+          ok={'READY','CPU_OK','HEAVY','GPU_ONLY','REPLACED','NOT_NEEDED'}
+          bad={x['status'] for x in u}-ok
+          assert not bad, f"bad status {bad}"
+          for k in ('no_readme_any_format','purpose_stays_hidden','video_analysis_forbidden','no_fake_unit_output'):
+              assert s['rules'][k] is True, k
+          print("PASS 50 units / rules locked")
+          PY
+      - name: no README any name or format
+        run: |
+          h=$(find . -path ./.git -prune -o -type f -iname 'readme*' -print)
+          [ -z "$h" ] || { echo "FAIL $h"; exit 1; }
+          echo "PASS no README"
