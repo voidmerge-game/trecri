@@ -17,8 +17,16 @@ jobs:
           sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
           python3 -m venv /tmp/venv
           /tmp/venv/bin/pip install -q --upgrade pip
-          # torchvision>=0.17 حذف torchvision.transforms.functional_tensor — يكسر basicsr/gfpgan/realesrgan
-          /tmp/venv/bin/pip install -q "numpy<2" "torchvision<0.17"
+          /tmp/venv/bin/pip install -q "numpy<2"
+          # أساسر يستورد torchvision.transforms.functional_tensor المحذوف في torchvision>=0.17
+          # لا توجد نسخة <0.17 لبايثون 3.12 → نصنع شيم (re-export) بدل التخفيض
+          /tmp/venv/bin/python - <<'SHIM'
+          import os, torchvision
+          p = os.path.join(os.path.dirname(torchvision.__file__), "transforms", "functional_tensor.py")
+          if not os.path.exists(p):
+              open(p, "w").write("from torchvision.transforms.functional import *\n")
+          print("shim:", p, os.path.exists(p))
+          SHIM
       - name: "A auto-editor (trim silence)"
         continue-on-error: true
         run: |
