@@ -73,24 +73,40 @@ def step_upscale(src, dst, scale=2):
             "engine": "Pillow LANCZOS (documented fallback, not Real-ESRGAN)",
             "reason_for_fallback": reason, "output": dst}
 
-def step_inpaint(src, dst_dir):
-    """إزالة عيوب: قناع تلقائي من البكسلات شديدة السواد (خدوش/بقع)."""
+def step_inpaint(src, dst_dir, max_side=768, max_mask_ratio=0.25, timeout=600):
+    """إزالة عيوب: قناع تلقائي من البكسلات شديدة السواد (خدوش/بقع).
+
+    حدود تشغيلية: iopaint على CPU بطيء جداً — نعمل على نسخة مصغّرة، ونرفض القناع
+    إن غطّى مساحة كبيرة (سيصبح ترميماً كاملاً لا إزالة عيوب).
+    """
     if not has_bin("iopaint"):
         return {"step": "iopaint", "role": "defect removal", "status": "SKIPPED",
                 "reason": "binary 'iopaint' not available"}
     from PIL import Image
     import numpy as np
     im = Image.open(src).convert("RGB")
+    if max(im.size) > max_side:
+        r = max_side / max(im.size)
+        im = im.resize((int(im.width * r), int(im.height * r)), Image.LANCZOS)
+    small = os.path.join(dst_dir, "in_small.png"); im.save(small)
     a = np.asarray(im).astype("uint8")
     mask = (a.mean(axis=2) < 40).astype("uint8") * 255
+    ratio = float((mask > 0).mean())
     if mask.sum() == 0:
         return {"step": "iopaint", "role": "defect removal", "status": "SKIPPED",
                 "reason": "auto-mask found no defects to remove"}
-    mp = dst_dir + "/mask.png"
+    if ratio > max_mask_ratio:
+        return {"step": "iopaint", "role": "defect removal", "status": "SKIPPED",
+                "reason": f"mask covers {ratio:.1%} of frame (> {max_mask_ratio:.0%}) — not defect removal"}
+    mp = os.path.join(dst_dir, "mask.png")
     Image.fromarray(mask).save(mp)
-    p = subprocess.run(["iopaint", "run", "--model=lama", "--device=cpu",
-                        f"--image={src}", f"--mask={mp}", f"--output={dst_dir}"],
-                       capture_output=True, text=True, timeout=420)
+    try:
+        p = subprocess.run(["iopaint", "run", "--model=lama", "--device=cpu",
+                            f"--image={small}", f"--mask={mp}", f"--output={dst_dir}"],
+                           capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return {"step": "iopaint", "role": "defect removal", "status": "FAILED",
+                "reason": f"timed out after {timeout}s on CPU with mask ratio {ratio:.2%}"}
     cand = [os.path.join(dst_dir, f) for f in os.listdir(dst_dir) if f.lower().endswith((".png", ".jpg"))]
     if p.returncode != 0 or len(cand) < 2:
         return {"step": "iopaint", "role": "defect removal", "status": "FAILED",
