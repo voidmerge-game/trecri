@@ -1,0 +1,45 @@
+name: research
+on:
+  workflow_dispatch:
+    inputs:
+      query:      { description: "search query (english)", required: true,  default: "murder trial" }
+      date_from:  { description: "from YYYY",             required: false, default: "1902" }
+      date_to:    { description: "to YYYY",               required: false, default: "1906" }
+      rows:       { description: "rows per source",       required: false, default: "4" }
+
+permissions: { contents: read }
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: install OCR
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-eng
+          tesseract --version | head -1
+      - name: collect + archive + ocr
+        env:
+          OUT_DIR: 01_research
+        run: |
+          python3 -m pipeline.research.run \
+            --query "${{ inputs.query }}" \
+            --from "${{ inputs.date_from }}" \
+            --to "${{ inputs.date_to }}" \
+            --rows "${{ inputs.rows }}"
+      - name: summary
+        if: always()
+        run: |
+          echo "### research run" >> $GITHUB_STEP_SUMMARY
+          test -f 01_research/log.csv && echo '```' && cat 01_research/log.csv && echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la 01_research 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: research-${{ github.run_number }}
+          path: 01_research
+          retention-days: 14

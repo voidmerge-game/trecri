@@ -1,0 +1,106 @@
+{
+ "query": "murder trial",
+ "dates": [
+  "1902",
+  "1906"
+ ],
+ "collected_at": "2026-10-29T17:18:38Z",
+ "sources": {
+  "chronicling_america": {
+   "api": "loc.gov",
+   "total": 225092,
+   "items": 2
+  },
+  "loc_api": {
+   "total": 1874663,
+   "items": 2
+  },
+  "archive_org": {
+   "total": 5854,
+   "items": 2,
+   "sample": [
+    {
+     "identifier": "youtube-ZOREVb7RDSM",
+     "title": "Fred Hampton: The Fight for Truth",
+     "year": 2021,
+     "creator": "Defending Rights & Dissent",
+     "license": "",
+     "file_url": "https://archive.org/download/youtube-ZOREVb7RDSM/",
+     "details_url": "https://archive.org/details/youtube-ZOREVb7RDSM",
+     "source": "archive.org"
+    },
+    {
+     "identifier": "derek-chauvin-trial-day-26",
+     "title": "Derek Chauvin Trial Day 26 [Livestream Archive, April 15, 2021]",
+     "year": 2021,
+     "creator": "Unicorn Riot",
+     "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+     "file_url": "https://archive.org/download/derek-chauvin-trial-day-26/",
+     "details_url": "https://archive.org/details/derek-chauvin-trial-day-26",
+     "source": "archive.org"
+    }
+   ]
+  },
+  "commons": {
+   "total": 2,
+   "items": 2,
+   "sample": [
+    {
+     "title": "File:Anatomical model used in the Hall–Mills murder trial in 1926.jpg",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/9/96/Anatomical_model_used_in_the_Hall%E2%80%93Mills_murder_trial_in_1926.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Anatomical_model_used_in_the_Hall%E2%80%93Mills_murder_trial_in_1926.jpg/1920px-Anatomical_model_used_in_the_Hall%E2%80%93Mills_murder_trial_in_1926.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+     "width": 4032,
+     "height": 3024,
+     "license": "CC BY-SA 4.0",
+     "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Richard_Arthur_Norton_(1958-_)\" title=\"User:Richard Arthur Norton (1958- )\">Richard Arthur Norton (1958- )</a>",
+     "source": "commons.wikimedia.org"
+    },
+    {
+     "title": "File:Prosecuting attorney Alexander Simpson (1872-1953) and witness, Anthony Silzor at the Hall Mills murder trial in 1926.jpg",
+     "url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Prosecuting_attorney_Alexander_Simpson_%281872-1953%29_and_witness%2C_Anthony_Silzor_at_the_Hall_Mills_murder_trial_in_1926.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Prosecuting_attorney_Alexander_Simpson_%281872-1953%29_and_witness%2C_Anthony_Silzor_at_the_Hall_Mills_murder_trial_in_1926.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+     "width": 1207,
+     "height": 1600,
+     "license": "Public domain",
+     "artist": "<span lang=\"en\">Anonymous</span><span style=\"display:none\">Unknown author</span>",
+     "source": "commons.wikimedia.org"
+    }
+   ]
+  },
+  "freesound": {
+   "status": "MISSING_KEY",
+   "items": 0
+  },
+  "pexels": {
+   "status": "MISSING_KEY",
+   "items": 0
+  }
+ },
+ "archived": [
+  {
+   "unit": "chronicling-america",
+   "url": "https://tile.loc.gov/image-services/iiif/service:ndnp:mthi:batch_mthi_harrier_ver01:data:sn85053157:00295860856:1903042201:0275/full/1600,/0/default.jpg",
+   "sha256": "b258453a2d16c440a651a199068ea64bba84a26bcdba341ee69d3e5d5a9a2d26",
+   "bytes": 886420,
+   "path": "01_research/pages/b258453a2d16c440.jpg",
+   "title": "Image 6 of The river press (Fort Benton, Mont.), April 22, 1903",
+   "date": "1903-04-22",
+   "license": "Public Domain (pre-1929 US periodical)",
+   "ocr": "SKIPPED",
+   "reason": "tesseract not installed"
+  },
+  {
+   "unit": "chronicling-america",
+   "url": "https://tile.loc.gov/image-services/iiif/service:ndnp:mthi:batch_mthi_bighornsheep_ver01:data:sn84036199:00294550045:1906041301:0021/full/1600,/0/default.jpg",
+   "sha256": "2bf7dc055fa3d6614a33009f344cca0115010b821eb7e87efc8bc94433f44224",
+   "bytes": 567323,
+   "path": "01_research/pages/2bf7dc055fa3d661.jpg",
+   "title": "Image 4 of The Montana plaindealer (Helena, Mont.), April 13, 1906",
+   "date": "1906-04-13",
+   "license": "Public Domain (pre-1929 US periodical)",
+   "ocr": "SKIPPED",
+   "reason": "tesseract not installed"
+  }
+ ],
+ "skipped": []
+}
