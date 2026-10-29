@@ -1,0 +1,84 @@
+name: e2e
+on:
+  workflow_dispatch:
+    inputs:
+      query: { description: "archive query", required: false, default: "murder trial" }
+
+permissions: { contents: read }
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu fonts-dejavu-extra tesseract-ocr tesseract-ocr-eng
+          pip install -q pillow numpy
+      - name: "1 research"
+        run: python3 -m pipeline.research.run --query "${{ inputs.query }}" --from 1902 --to 1908 --rows 3
+      - name: "2 script lint + breakdown"
+        run: |
+          python3 -m pipeline.script.lint tests/fixtures/sample.fountain | tee 02_script_lint.json
+          python3 -m pipeline.script.breakdown tests/fixtures/sample.fountain 02_script/shotlist.json
+      - name: "3 visuals: docs + maps"
+        run: |
+          mkdir -p 04_visuals/{docs,maps,pages,broll,evidence}
+          cp 01_research/pages/*.jpg 04_visuals/pages/ 2>/dev/null || true
+          python3 -m pipeline.docs.clipping --headline "THE QUIET LEDGER" --body "According to archived records the inquiry remained open for more than a decade." --out 04_visuals/docs/clip.png
+          python3 -m pipeline.docs.handwriting "Dear Sir, the entry was never signed." 04_visuals/docs/letter.png
+          python3 -m pipeline.docs.age 04_visuals/docs/clip.png 04_visuals/docs/clip_aged.png
+          printf '[{"date":"1903","label":"First report"},{"date":"1906","label":"Inquiry opened","key":true},{"date":"1911","label":"File closed"}]' > /tmp/ev.json
+          python3 -m pipeline.maps.timeline /tmp/ev.json 04_visuals/maps/timeline.svg
+          printf '{"nodes":[{"id":"a","label":"Witness","key":true},{"id":"b","label":"Depot"},{"id":"c","label":"Letter","key":true}],"edges":[{"a":"a","b":"b","key":true},{"a":"b","b":"c"}]}' > /tmp/cb.json
+          python3 -m pipeline.maps.caseboard /tmp/cb.json 04_visuals/maps/caseboard.svg
+          echo "Mr. Hollis travelled to Helena, Mont. in the spring." > /tmp/g.txt
+          python3 -m pipeline.maps.graph /tmp/g.txt --json 04_visuals/maps/graph.json --svg 04_visuals/maps/graph.svg
+          ls -la 04_visuals/docs 04_visuals/maps
+      - name: "4 svg -> png (required: ffmpeg concat needs raster)"
+        run: |
+          python3 - <<'PY'
+          import glob, subprocess, os
+          try:
+              import cairosvg
+          except Exception:
+              subprocess.run(["pip","install","-q","cairosvg"], check=True)
+              import cairosvg
+          for f in glob.glob("04_visuals/maps/*.svg"):
+              out = f.replace(".svg", ".png")
+              cairosvg.svg2png(url=f, write_to=out, output_width=1920, output_height=1080)
+              print("rendered", out)
+          PY
+      - name: "5 real material"
+        run: python3 -m pipeline.real.broll "1905 street" --out 04_visuals/broll --limit 3
+      - name: "6 grade"
+        run: |
+          mkdir -p 05_edit
+          python3 -m pipeline.grade.build_lut 05_edit/noir.cube --size 33
+      - name: "7 audio placeholder (TEST TONE - not narration)"
+        run: |
+          mkdir -p 03_audio
+          ffmpeg -y -f lavfi -i "sine=frequency=180:duration=20" -af "volume=0.05" -ar 48000 03_audio/placeholder_tone.wav
+          python3 -m pipeline.audio.ingest 03_audio/placeholder_tone.wav --out 03_audio/ingest.json || true
+      - name: "8 timeline + assemble + export"
+        run: |
+          python3 -m pipeline.edit.timeline_build --shotlist 02_script/shotlist.json --visuals 04_visuals --out 05_edit/timeline.json
+          python3 -m pipeline.edit.otio_export --timeline 05_edit/timeline.json --outdir 05_edit
+          python3 -m pipeline.edit.assemble --timeline 05_edit/timeline.json --out 05_edit/assembly_v1.mp4 \
+            --audio 03_audio/placeholder_tone.wav --lut 05_edit/noir.cube --srt 05_edit/assembly.srt
+      - name: "9 deliver report"
+        run: |
+          mkdir -p 06_final
+          python3 -m pipeline.final.deliver 05_edit/assembly_v1.mp4 --out 06_final/delivered.json
+      - name: summary
+        if: always()
+        run: |
+          { echo "### e2e"; echo '```'; cat 06_final/delivered.json 2>/dev/null || echo "no delivered.json";
+            echo '```'; ls -la 05_edit 2>/dev/null || true; } >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: e2e-output, path: "05_edit\n06_final\n04_visuals\n02_script", retention-days: 14 }
