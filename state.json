@@ -36,5 +36,35 @@
   "phase-11: LUT generator + look extractor + neutral scene stats",
   "phase-12: delivery probe + EDL/SRT/FCPXML export"
  ],
- "build_complete": true
+ "build_complete": true,
+ "probe": {
+  "run": 40937429970,
+  "date": "2026-10-29",
+  "works": [
+   "auto-editor",
+   "demucs",
+   "iopaint",
+   "realesrgan",
+   "basicsr",
+   "gfpgan",
+   "pedalboard",
+   "chatterbox-download"
+  ],
+  "cpu_only": true,
+  "not_tested": [
+   "ACE-Step",
+   "Stable Audio Open",
+   "MMAudio",
+   "Bark",
+   "Meshroom"
+  ],
+  "fixes": 6
+ },
+ "e2e": {
+  "run": 40935033576,
+  "status": "success",
+  "coverage": "9/9",
+  "duration_s": 32.83,
+  "res": "1920x1080"
+ }
 }
