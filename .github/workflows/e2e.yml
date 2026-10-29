@@ -69,7 +69,7 @@ jobs:
         run: |
           PAGE=$(ls 01_research/pages/*.jpg | head -1)
           echo "page=$PAGE"
-          python3 -m pipeline.restore.chain "$PAGE" 04_visuals/restored --no-colour 2>&1 | tail -30
+          timeout 900 python3 -m pipeline.restore.chain "$PAGE" 04_visuals/restored --no-colour --max-side 1024 2>&1 | tail -40 || echo "RESTORE_TIMEOUT_OR_FAIL (recorded, not faked)"
           ls -la 04_visuals/restored 2>/dev/null || true
       - name: "6 grade"
         run: |

@@ -5,6 +5,20 @@
 """
 import argparse, importlib.util, json, os, shutil, subprocess
 
+MAX_SIDE = 1280
+
+def shrink(src, out_dir, max_side=MAX_SIDE):
+    """تصغير قبل المعالجة: صفحات الصحف 1600px+ تُبطئ النماذج على CPU بشكل قاتل."""
+    from PIL import Image
+    im = Image.open(src)
+    if max(im.size) <= max_side:
+        return src, False
+    r = max_side / max(im.size)
+    im = im.resize((int(im.width * r), int(im.height * r)), Image.LANCZOS)
+    p = os.path.join(out_dir, "0_small.png")
+    im.save(p)
+    return p, True
+
 def has(mod):
     return importlib.util.find_spec(mod) is not None
 
@@ -23,7 +37,7 @@ def step_face(src, dst):
         f"_,_,out=r.enhance(sys.argv[1],has_aligned=False,only_center_face=False,paste_back=True)\n"
         f"cv2.imwrite(sys.argv[2],out)\n"
     )
-    p = subprocess.run(["python3", "-c", code, src, dst], capture_output=True, text=True, timeout=1200)
+    p = subprocess.run(["python3", "-c", code, src, dst], capture_output=True, text=True, timeout=420)
     if p.returncode != 0 or not os.path.exists(dst):
         return {"step": "gfpgan", "role": "face restoration", "status": "FAILED",
                 "reason": (p.stderr or "")[-300:]}
@@ -45,7 +59,7 @@ def step_upscale(src, dst, scale=2):
         weights = "RealESRGAN_x4plus.pth"
         if os.path.exists(weights):
             p = subprocess.run(["python3", "-c", code, src, dst, weights, str(scale)],
-                               capture_output=True, text=True, timeout=1800)
+                               capture_output=True, text=True, timeout=420)
             if p.returncode == 0 and os.path.exists(dst):
                 return {"step": "upscale", "role": "super resolution", "status": "OK",
                         "engine": "Real-ESRGAN", "output": dst}
@@ -76,7 +90,7 @@ def step_inpaint(src, dst_dir):
     Image.fromarray(mask).save(mp)
     p = subprocess.run(["iopaint", "run", "--model=lama", "--device=cpu",
                         f"--image={src}", f"--mask={mp}", f"--output={dst_dir}"],
-                       capture_output=True, text=True, timeout=1800)
+                       capture_output=True, text=True, timeout=420)
     cand = [os.path.join(dst_dir, f) for f in os.listdir(dst_dir) if f.lower().endswith((".png", ".jpg"))]
     if p.returncode != 0 or len(cand) < 2:
         return {"step": "iopaint", "role": "defect removal", "status": "FAILED",
@@ -93,9 +107,13 @@ def step_colourise(src, dst):
     return {"step": "colourise", "role": "colour reconstruction", "status": "OK",
             "disclosure": "Colourised reconstruction", "output": dst}
 
-def run_chain(src, outdir, colourise=True):
+def run_chain(src, outdir, colourise=True, max_side=MAX_SIDE):
     os.makedirs(outdir, exist_ok=True)
-    log, cur = [], src
+    small, was_shrunk = shrink(src, outdir, max_side)
+    log, cur = [], small
+    if was_shrunk:
+        log.append({"step": "preprocess", "role": "downscale for CPU", "status": "OK",
+                    "note": f"downscaled to max side {max_side}", "output": small})
     r = step_face(cur, os.path.join(outdir, "1_face.png"))
     log.append(r)
     if r["status"] == "OK": cur = r["output"]
@@ -117,5 +135,6 @@ def run_chain(src, outdir, colourise=True):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("src"); ap.add_argument("outdir")
     ap.add_argument("--no-colour", action="store_true")
+    ap.add_argument("--max-side", type=int, default=MAX_SIDE)
     a = ap.parse_args()
-    print(json.dumps(run_chain(a.src, a.outdir, not a.no_colour), ensure_ascii=False, indent=1))
+    print(json.dumps(run_chain(a.src, a.outdir, not a.no_colour, a.max_side), ensure_ascii=False, indent=1))
