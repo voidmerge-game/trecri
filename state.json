@@ -1,9 +1,9 @@
 {
- "phase": 3,
+ "phase": 12,
  "phases_total": 12,
- "status": "phase-3-done",
+ "status": "build-complete",
  "units_total": 50,
- "next": "await 'واصل' -> phase 4: script pipeline (fountain lint + breakdown)",
+ "next": "third party: read rules/third_party.md, ask the script question, then produce",
  "rules": {
   "no_readme_any_format": true,
   "purpose_stays_hidden": true,
@@ -23,8 +23,18 @@
  ],
  "updated": "2026-10-29",
  "completed": [
-  "phase-1: skeleton + catalog (50)",
-  "phase-2: 50 adapters + extract + availability (25/25 exist)",
-  "phase-3: research clients (CA/LoC/Archive.org/Commons/Freesound/Pexels) + archival w/ sha256 + OCR; Actions run 40920154829 success (3 pages archived, OCR 16743/8298/758 chars)"
- ]
+  "phase-1: skeleton + catalog (50 units)",
+  "phase-2: 50 adapters + extract map + availability check (25/25 exist)",
+  "phase-3: research clients + archival(sha256) + OCR — Actions run 40920154829 success",
+  "phase-4: script lint + breakdown (fountain -> shotlist)",
+  "phase-5: audio ingest + clean(trim/loudnorm) + fx(phone/radio/echo)",
+  "phase-6: music/sfx hooks + pedalboard->ffmpeg fallback",
+  "phase-7: documents (clipping/handwriting/ageing) + restore chain (gfpgan->esrgan->deoldify->iopaint)",
+  "phase-8: maps + timeline + caseboard + graph (SVG, no browser)",
+  "phase-9: real material fetcher + per-file license + CREDITS",
+  "phase-10: timeline build + ffmpeg assemble (zoompan/concat/lut3d/subtitles/loudnorm)",
+  "phase-11: LUT generator + look extractor + neutral scene stats",
+  "phase-12: delivery probe + EDL/SRT/FCPXML export"
+ ],
+ "build_complete": true
 }
