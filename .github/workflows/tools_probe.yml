@@ -17,6 +17,8 @@ jobs:
           sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
           python3 -m venv /tmp/venv
           /tmp/venv/bin/pip install -q --upgrade pip
+          # torchvision>=0.17 حذف torchvision.transforms.functional_tensor — يكسر basicsr/gfpgan/realesrgan
+          /tmp/venv/bin/pip install -q "numpy<2" "torchvision<0.17"
       - name: "A auto-editor (trim silence)"
         continue-on-error: true
         run: |
