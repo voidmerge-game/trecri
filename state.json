@@ -1,9 +1,9 @@
 {
- "phase": 2,
+ "phase": 3,
  "phases_total": 12,
- "status": "phase-2-done",
+ "status": "phase-3-done",
  "units_total": 50,
- "next": "await 'واصل' -> phase 3: research + archiving pipeline wiring",
+ "next": "await 'واصل' -> phase 4: script pipeline (fountain lint + breakdown)",
  "rules": {
   "no_readme_any_format": true,
   "purpose_stays_hidden": true,
@@ -23,7 +23,8 @@
  ],
  "updated": "2026-10-29",
  "completed": [
-  "phase-1: skeleton + 50-unit catalog",
-  "phase-2: 50 adapters + extract map + real GitHub availability check (25/25 exist)"
+  "phase-1: skeleton + catalog (50)",
+  "phase-2: 50 adapters + extract + availability (25/25 exist)",
+  "phase-3: research clients (CA/LoC/Archive.org/Commons/Freesound/Pexels) + archival w/ sha256 + OCR; Actions run 40920154829 success (3 pages archived, OCR 16743/8298/758 chars)"
  ]
 }
