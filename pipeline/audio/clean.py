@@ -3,7 +3,7 @@ import argparse, json, shutil, subprocess
 
 def trim(src, dst):
     if shutil.which("auto-editor"):
-        subprocess.run(["auto-editor", src, "--edit", "audio:threshold=0.03",
+        subprocess.run(["auto-editor", src, "--edit", "audio:threshold=-40dB",
                         "--output", dst, "--no-open"], check=True, capture_output=True, timeout=1200)
         return {"trim": "auto-editor", "out": dst}
     subprocess.run(["ffmpeg", "-y", "-i", src, "-af",

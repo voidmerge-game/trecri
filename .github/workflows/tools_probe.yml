@@ -14,7 +14,8 @@ jobs:
       - name: base deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core \
+            libjpeg-dev zlib1g-dev libwebp-dev libtiff-dev libfreetype6-dev liblcms2-dev
           python3 -m venv /tmp/venv
           /tmp/venv/bin/pip install -q --upgrade pip
           /tmp/venv/bin/pip install -q "numpy<2"
@@ -33,12 +34,12 @@ jobs:
         continue-on-error: true
         run: |
           /tmp/venv/bin/pip install -q auto-editor
-          ffmpeg -y -f lavfi -i "sine=frequency=300:duration=3" -af "volume=0.2" /tmp/a.wav
+          ffmpeg -y -f lavfi -i "sine=frequency=300:duration=3" -af "volume=0.3" /tmp/a.wav
           ffmpeg -y -f lavfi -i anullsrc=r=48000:cl=mono -t 2 /tmp/sil.wav
-          printf "file '/tmp/a.wav'\nfile '/tmp/sil.wav'\nfile '/tmp/a.wav'\n" > /tmp/l.txt
-          ffmpeg -y -f concat -safe 0 -i /tmp/l.txt /tmp/in.wav
-          /tmp/venv/bin/auto-editor /tmp/in.wav --edit audio:threshold=0.03 --output /tmp/out.wav --no-open
-          ffprobe -v error -show_entries format=duration -of csv=p=0 /tmp/in.wav /tmp/out.wav
+          ffmpeg -y -f concat -safe 0 -i <(printf "file '/tmp/a.wav'\nfile '/tmp/sil.wav'\nfile '/tmp/a.wav'\n") /tmp/in.wav
+          /tmp/venv/bin/auto-editor /tmp/in.wav --edit "audio:threshold=-40dB" --output /tmp/out.wav --no-open
+          echo "IN=$(ffprobe -v error -show_entries format=duration -of csv=p=0 /tmp/in.wav)"
+          echo "OUT=$(ffprobe -v error -show_entries format=duration -of csv=p=0 /tmp/out.wav)"
       - name: "B demucs (stem separation, CPU)"
         continue-on-error: true
         run: |
