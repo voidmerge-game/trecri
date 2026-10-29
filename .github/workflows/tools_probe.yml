@@ -18,6 +18,8 @@ jobs:
           python3 -m venv /tmp/venv
           /tmp/venv/bin/pip install -q --upgrade pip
           /tmp/venv/bin/pip install -q "numpy<2"
+          # نسخ CPU الرسمية (أخف بكثير من cu132 الموجودة افتراضياً)
+          /tmp/venv/bin/pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
           # أساسر يستورد torchvision.transforms.functional_tensor المحذوف في torchvision>=0.17
           # لا توجد نسخة <0.17 لبايثون 3.12 → نصنع شيم (re-export) بدل التخفيض
           /tmp/venv/bin/python - <<'SHIM'
