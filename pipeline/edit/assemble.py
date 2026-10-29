@@ -29,7 +29,25 @@ def zoompan_filter(idx, dur, fps, w, h, direction):
             f"crop={w*2}:{h*2},zoompan=z='{z}':x='{x}':y='{y}':d={frames}:s={w}x{h}:fps={fps},"
             f"trim=duration={dur},setpts=PTS-STARTPTS,setsar=1[v{idx}]")
 
+def audio_valid(path):
+    """ffprobe: هل الملف الصوتي صالح فعلاً؟ يمنع تمرير ملف تالف إلى المونتاج."""
+    import json as _j
+    try:
+        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                              "format=duration,size:stream=codec_type",
+                              "-of", "json", path], capture_output=True, text=True, timeout=60).stdout
+        d = _j.loads(out or "{}")
+        dur = float(d.get("format", {}).get("duration") or 0)
+        size = int(d.get("format", {}).get("size") or 0)
+        has_a = any(x.get("codec_type") == "audio" for x in d.get("streams", []))
+        return has_a and dur > 0.4 and size > 2048, {"duration": dur, "bytes": size, "audio_stream": has_a}
+    except Exception as e:
+        return False, {"error": str(e)[:160]}
+
+
 def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, fps=24, w=1920, h=1080):
+    if audio and not audio_valid(audio)[0]:
+        raise SystemExit(f"AUDIO INVALID — refusing to build silent mp4: {audio} {audio_valid(audio)[1]}")
     tl = json.load(open(timeline_path, encoding="utf-8"))
     clips = [c for c in tl["clips"] if c.get("asset")]
     if not clips:
@@ -80,7 +98,9 @@ def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, f
             "-r", str(fps), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out_path]
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     sh(cmd)
-    return {"out": out_path, "clips": n, "fps": fps, "resolution": f"{w}x{h}"}
+    ok, ainfo = audio_valid(out_path)
+    return {"out": out_path, "clips": n, "fps": fps, "resolution": f"{w}x{h}",
+            "audio_present": ok, "audio_probe": ainfo}
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
