@@ -2,7 +2,7 @@
 
 الاستخدام: python -m pipeline.script.breakdown 02_script/final.fountain 02_script/shotlist.json
 """
-import json, sys, re
+import json, os, sys, re
 from pipeline.script.lint import parse
 
 SHOT_TYPES = ["aerial", "wide", "medium", "close", "detail", "page", "map", "portrait"]
@@ -38,5 +38,7 @@ def breakdown(fountain_path):
 
 if __name__ == "__main__":
     out = breakdown(sys.argv[1])
+    d = os.path.dirname(sys.argv[2])
+    if d: os.makedirs(d, exist_ok=True)
     json.dump(out, open(sys.argv[2], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"scenes={out['scene_count']} shots={out['shot_count']} -> {sys.argv[2]}")

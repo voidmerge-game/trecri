@@ -81,4 +81,11 @@ jobs:
             echo '```'; ls -la 05_edit 2>/dev/null || true; } >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: e2e-output, path: "05_edit\n06_final\n04_visuals\n02_script", retention-days: 14 }
+        with:
+          name: e2e-output
+          retention-days: 14
+          path: |
+            05_edit
+            06_final
+            04_visuals
+            02_script
