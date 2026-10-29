@@ -17,8 +17,18 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-dejavu fonts-dejavu-extra tesseract-ocr tesseract-ocr-eng
-          pip install -q pillow numpy
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu fonts-dejavu-extra tesseract-ocr tesseract-ocr-eng \
+            libjpeg-dev zlib1g-dev libwebp-dev libtiff-dev libfreetype6-dev liblcms2-dev
+          pip install -q "numpy<2" pillow
+          pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          python3 - <<'SHIM'
+          import os, torchvision
+          p = os.path.join(os.path.dirname(torchvision.__file__), "transforms", "functional_tensor.py")
+          if not os.path.exists(p):
+              open(p, "w").write("from torchvision.transforms.functional import *\n")
+          print("shim:", os.path.exists(p))
+          SHIM
+          pip install -q auto-editor pedalboard iopaint realesrgan basicsr gfpgan
       - name: "1 research"
         run: python3 -m pipeline.research.run --query "${{ inputs.query }}" --from 1902 --to 1908 --rows 3
       - name: "2 script lint + breakdown"
@@ -55,21 +65,31 @@ jobs:
           PY
       - name: "5 real material"
         run: python3 -m pipeline.real.broll "1905 street" --out 04_visuals/broll --limit 3
+      - name: "5b restore chain on a real archived page (CPU)"
+        run: |
+          PAGE=$(ls 01_research/pages/*.jpg | head -1)
+          echo "page=$PAGE"
+          python3 -m pipeline.restore.chain "$PAGE" 04_visuals/restored --no-colour 2>&1 | tail -30
+          ls -la 04_visuals/restored 2>/dev/null || true
       - name: "6 grade"
         run: |
           mkdir -p 05_edit
           python3 -m pipeline.grade.build_lut 05_edit/noir.cube --size 33
-      - name: "7 audio placeholder (TEST TONE - not narration)"
+      - name: "7 audio (TEST TONE - not narration) + real trim/normalise/fx"
         run: |
           mkdir -p 03_audio
-          ffmpeg -y -f lavfi -i "sine=frequency=180:duration=20" -af "volume=0.05" -ar 48000 03_audio/placeholder_tone.wav
-          python3 -m pipeline.audio.ingest 03_audio/placeholder_tone.wav --out 03_audio/ingest.json || true
+          ffmpeg -y -f lavfi -i "sine=frequency=180:duration=6" -af "volume=0.05" /tmp/t1.wav
+          ffmpeg -y -f lavfi -i anullsrc=r=48000:cl=mono -t 3 /tmp/sil.wav
+          ffmpeg -y -f concat -safe 0 -i <(printf "file '/tmp/t1.wav'\nfile '/tmp/sil.wav'\nfile '/tmp/t1.wav'\n") 03_audio/placeholder_tone.wav
+          python3 -m pipeline.audio.clean 03_audio/placeholder_tone.wav --out 03_audio/narrator_clean.wav
+          python3 -m pipeline.audio.fx 03_audio/narrator_clean.wav 03_audio/line_phone.wav --kind phone
+          python3 -m pipeline.audio.ingest 03_audio/narrator_clean.wav --out 03_audio/ingest.json || true
       - name: "8 timeline + assemble + export"
         run: |
           python3 -m pipeline.edit.timeline_build --shotlist 02_script/shotlist.json --visuals 04_visuals --out 05_edit/timeline.json
           python3 -m pipeline.edit.otio_export --timeline 05_edit/timeline.json --outdir 05_edit
           timeout 600 python3 -m pipeline.edit.assemble --timeline 05_edit/timeline.json --out 05_edit/assembly_v1.mp4 \
-            --audio 03_audio/placeholder_tone.wav --lut 05_edit/noir.cube --srt 05_edit/assembly.srt
+            --audio 03_audio/narrator_clean.wav --lut 05_edit/noir.cube --srt 05_edit/assembly.srt
           ffprobe -v error -show_entries format=duration,size -of json 05_edit/assembly_v1.mp4
       - name: "9 deliver report"
         run: |
@@ -90,3 +110,4 @@ jobs:
             06_final
             04_visuals
             02_script
+            03_audio

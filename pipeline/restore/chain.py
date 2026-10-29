@@ -1,51 +1,121 @@
-"""سلسلة الترميم بالترتيب الإلزامي: GFPGAN → Real-ESRGAN → DeOldify → IOPaint.
+"""سلسلة الترميم بالترتيب الإلزامي: GFPGAN → تكبير → إزالة عيوب → تلوين.
 
-كل خطوة اختيارية: إن لم تتوفر أداتها تُسجَّل SKIPPED ولا تُزوَّر نتيجتها.
+كل خطوة تُفحص فعلياً. ما لا يعمل يُسجَّل SKIPPED مع السبب — لا نتيجة مزوّرة.
+يعمل على CPU. لا GPU مطلوب.
 """
-import argparse, json, os, shutil, subprocess
+import argparse, importlib.util, json, os, shutil, subprocess
 
-STEPS = [
-    ("gfpgan",    "face restoration",  ["gfpgan", "-i", "{i}", "-o", "{o}", "-v", "1.3"]),
-    ("realesrgan","upscale",           ["realesrgan-ncnn-vulkan", "-i", "{i}", "-o", "{o}", "-s", "2"]),
-    ("iopaint",   "defect removal",    ["iopaint", "run", "--model=lama", "--image", "{i}", "--output", "{o}"]),
-]
+def has(mod):
+    return importlib.util.find_spec(mod) is not None
 
-def which(binary):
-    return shutil.which(binary)
+def has_bin(name):
+    return shutil.which(name) is not None
 
-def run_chain(src, outdir, colorise=False):
+def step_face(src, dst):
+    """GFPGAN: ترميم الوجوه — يُشغَّل فقط إن كانت الحزمة قابلة للاستيراد."""
+    if not has("gfpgan"):
+        return {"step": "gfpgan", "role": "face restoration", "status": "SKIPPED",
+                "reason": "python package 'gfpgan' not importable"}
+    code = (
+        "import sys,cv2\n"
+        "from gfpgan import GFPGANer\n"          # noqa
+        "r=GFPGANer(model_path=None,upscale=1,arch='clean',channel_multiplier=2,bg_upsampler=None)\n"
+        f"_,_,out=r.enhance(sys.argv[1],has_aligned=False,only_center_face=False,paste_back=True)\n"
+        f"cv2.imwrite(sys.argv[2],out)\n"
+    )
+    p = subprocess.run(["python3", "-c", code, src, dst], capture_output=True, text=True, timeout=1200)
+    if p.returncode != 0 or not os.path.exists(dst):
+        return {"step": "gfpgan", "role": "face restoration", "status": "FAILED",
+                "reason": (p.stderr or "")[-300:]}
+    return {"step": "gfpgan", "role": "face restoration", "status": "OK", "output": dst}
+
+def step_upscale(src, dst, scale=2):
+    """Real-ESRGAN إن توفر؛ وإلا تكبير LANCZOS معلَّم صراحةً كبديل."""
+    if has("realesrgan") and has("basicsr"):
+        code = (
+            "import sys,cv2\n"
+            "from basicsr.archs.rrdbnet_arch import RRDBNet\n"
+            "from realesrgan import RealESRGANer\n"
+            "m=RRDBNet(num_in_ch=3,num_out_ch=3,num_feat=64,num_block=23,num_grow_ch=32,scale=4)\n"
+            "u=RealESRGANer(scale=4,model_path=sys.argv[3],model=m,tile=0,tile_pad=10,pre_pad=0,half=False)\n"
+            "img=cv2.imread(sys.argv[1],cv2.IMREAD_UNCHANGED)\n"
+            "o,_=u.enhance(img,outscale=float(sys.argv[4]))\n"
+            "cv2.imwrite(sys.argv[2],o)\n"
+        )
+        weights = "RealESRGAN_x4plus.pth"
+        if os.path.exists(weights):
+            p = subprocess.run(["python3", "-c", code, src, dst, weights, str(scale)],
+                               capture_output=True, text=True, timeout=1800)
+            if p.returncode == 0 and os.path.exists(dst):
+                return {"step": "upscale", "role": "super resolution", "status": "OK",
+                        "engine": "Real-ESRGAN", "output": dst}
+        reason = "weights or run failed"
+    else:
+        reason = "realesrgan/basicsr not importable"
+    from PIL import Image
+    im = Image.open(src)
+    im.resize((im.width * scale, im.height * scale), Image.LANCZOS).save(dst)
+    return {"step": "upscale", "role": "super resolution", "status": "OK",
+            "engine": "Pillow LANCZOS (documented fallback, not Real-ESRGAN)",
+            "reason_for_fallback": reason, "output": dst}
+
+def step_inpaint(src, dst_dir):
+    """إزالة عيوب: قناع تلقائي من البكسلات شديدة السواد (خدوش/بقع)."""
+    if not has_bin("iopaint"):
+        return {"step": "iopaint", "role": "defect removal", "status": "SKIPPED",
+                "reason": "binary 'iopaint' not available"}
+    from PIL import Image
+    import numpy as np
+    im = Image.open(src).convert("RGB")
+    a = np.asarray(im).astype("uint8")
+    mask = (a.mean(axis=2) < 40).astype("uint8") * 255
+    if mask.sum() == 0:
+        return {"step": "iopaint", "role": "defect removal", "status": "SKIPPED",
+                "reason": "auto-mask found no defects to remove"}
+    mp = dst_dir + "/mask.png"
+    Image.fromarray(mask).save(mp)
+    p = subprocess.run(["iopaint", "run", "--model=lama", "--device=cpu",
+                        f"--image={src}", f"--mask={mp}", f"--output={dst_dir}"],
+                       capture_output=True, text=True, timeout=1800)
+    cand = [os.path.join(dst_dir, f) for f in os.listdir(dst_dir) if f.lower().endswith((".png", ".jpg"))]
+    if p.returncode != 0 or len(cand) < 2:
+        return {"step": "iopaint", "role": "defect removal", "status": "FAILED",
+                "reason": (p.stderr or "")[-300:]}
+    return {"step": "iopaint", "role": "defect removal", "status": "OK",
+            "output": sorted(cand)[-1], "mask": mp}
+
+def step_colourise(src, dst):
+    """تلوين إعادة بناء — يُعلَّم إلزاماً Colourised reconstruction."""
+    from PIL import Image, ImageOps
+    im = Image.open(src).convert("L")
+    ImageOps.colorize(im, black="#12100e", white="#e8dcc0").save(dst)
+    lum = Image.open(dst).convert("L").resize((1, 1)).getpixel((0, 0))
+    return {"step": "colourise", "role": "colour reconstruction", "status": "OK",
+            "disclosure": "Colourised reconstruction", "output": dst}
+
+def run_chain(src, outdir, colourise=True):
     os.makedirs(outdir, exist_ok=True)
     log, cur = [], src
-    for name, role, cmd in STEPS:
-        nxt = os.path.join(outdir, f"{name}.png")
-        if not which(cmd[0]):
-            log.append({"step": name, "role": role, "status": "SKIPPED",
-                        "reason": f"binary '{cmd[0]}' not available in this runner"})
-            continue
-        try:
-            c = [x.format(i=cur, o=nxt) for x in cmd]
-            subprocess.run(c, check=True, capture_output=True, timeout=900)
-            log.append({"step": name, "role": role, "status": "OK", "output": nxt})
-            cur = nxt
-        except Exception as e:
-            log.append({"step": name, "role": role, "status": "FAILED", "reason": str(e)[:160]})
-    # التلوين آخر خطوة، وبإفصاح إلزامي
-    if colorise:
-        try:
-            from PIL import Image, ImageOps
-            im = Image.open(cur).convert("L")
-            col = ImageOps.colorize(im, black="#12100e", white="#e8dcc0")
-            p = os.path.join(outdir, "colourised.png"); col.save(p)
-            log.append({"step": "colourise", "role": "colour reconstruction", "status": "OK",
-                        "output": p, "disclosure": "Colourised reconstruction"})
-            cur = p
-        except Exception as e:
-            log.append({"step": "colourise", "status": "FAILED", "reason": str(e)[:120]})
+    r = step_face(cur, os.path.join(outdir, "1_face.png"))
+    log.append(r)
+    if r["status"] == "OK": cur = r["output"]
+    r = step_upscale(cur, os.path.join(outdir, "2_upscale.png"))
+    log.append(r)
+    if r["status"] == "OK": cur = r["output"]
+    d = os.path.join(outdir, "3_inpaint"); os.makedirs(d, exist_ok=True)
+    r = step_inpaint(cur, d)
+    log.append(r)
+    if r["status"] == "OK": cur = r["output"]
+    if colourise:
+        r = step_colourise(cur, os.path.join(outdir, "4_colourised.png"))
+        log.append(r)
+        if r["status"] == "OK": cur = r["output"]
     log.append({"step": "final", "output": cur})
-    json.dump(log, open(os.path.join(outdir, "restore_log.json"), "w"), indent=1)
+    json.dump(log, open(os.path.join(outdir, "restore_log.json"), "w"), ensure_ascii=False, indent=1)
     return log
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("src"); ap.add_argument("outdir")
-    ap.add_argument("--colourise", action="store_true")
-    a = ap.parse_args(); print(json.dumps(run_chain(a.src, a.outdir, a.colourise), indent=1))
+    ap.add_argument("--no-colour", action="store_true")
+    a = ap.parse_args()
+    print(json.dumps(run_chain(a.src, a.outdir, not a.no_colour), ensure_ascii=False, indent=1))
