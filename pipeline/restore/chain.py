@@ -25,19 +25,36 @@ def has(mod):
 def has_bin(name):
     return shutil.which(name) is not None
 
-def step_face(src, dst):
-    """GFPGAN: ترميم الوجوه — يُشغَّل فقط إن كانت الحزمة قابلة للاستيراد."""
+GFPGAN_URL = ("https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/"
+              "GFPGANv1.3.pth")
+
+def _ensure_weights(url, path):
+    """ينزّل الأوزان إن غابت. لا يفشل بصمت: يعيد سبباً عند الفشل."""
+    if os.path.exists(path) and os.path.getsize(path) > 1_000_000:
+        return None
+    try:
+        import urllib.request
+        urllib.request.urlretrieve(url, path)
+        return None
+    except Exception as e:
+        return f"weights download failed: {e}"
+
+def step_face(src, dst, weights="GFPGANv1.3.pth"):
+    """GFPGAN: ترميم الوجوه — model_path صريح إلزامي (None يرفع AttributeError)."""
     if not has("gfpgan"):
         return {"step": "gfpgan", "role": "face restoration", "status": "SKIPPED",
                 "reason": "python package 'gfpgan' not importable"}
+    err = _ensure_weights(GFPGAN_URL, weights)
+    if err:
+        return {"step": "gfpgan", "role": "face restoration", "status": "SKIPPED", "reason": err}
     code = (
         "import sys,cv2\n"
-        "from gfpgan import GFPGANer\n"          # noqa
-        "r=GFPGANer(model_path=None,upscale=1,arch='clean',channel_multiplier=2,bg_upsampler=None)\n"
-        f"_,_,out=r.enhance(sys.argv[1],has_aligned=False,only_center_face=False,paste_back=True)\n"
-        f"cv2.imwrite(sys.argv[2],out)\n"
+        "from gfpgan import GFPGANer\n"
+        "r=GFPGANer(model_path=sys.argv[3],upscale=2,arch='clean',channel_multiplier=2,bg_upsampler=None)\n"
+        "_,_,out=r.enhance(sys.argv[1],has_aligned=False,only_center_face=False,paste_back=True)\n"
+        "cv2.imwrite(sys.argv[2],out)\n"
     )
-    p = subprocess.run(["python3", "-c", code, src, dst], capture_output=True, text=True, timeout=420)
+    p = subprocess.run(["python3", "-c", code, src, dst, weights], capture_output=True, text=True, timeout=600)
     if p.returncode != 0 or not os.path.exists(dst):
         return {"step": "gfpgan", "role": "face restoration", "status": "FAILED",
                 "reason": (p.stderr or "")[-300:]}

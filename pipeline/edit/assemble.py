@@ -54,20 +54,27 @@ def build(timeline_path, out_path, audio=None, music=None, lut=None, srt=None, f
     if post: fc += ";" + ";".join(post)
 
     cmd = ["ffmpeg", "-y"] + inputs
-    aidx = None
+    aidx = midx = None
     if audio:
         cmd += ["-i", audio]; aidx = n
     if music:
         cmd += ["-stream_loop", "-1", "-i", music]; midx = n + (1 if audio else 0)
-    cmd += ["-filter_complex", fc, "-map", vout]
+
+    # خريطة الصوت: كل الحالات تُخرج تدفقاً مسمّى [aout] لضمان وجود صوت في الملف
     if audio and music:
-        fc2 = f"[{aidx}:a]volume=1.0[a1];[{midx}:a]volume=0.16[a2];[a1][a2]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.95[aout]"
-        cmd[-1] = f"{vout};{fc2}"
-        cmd += ["-map", "[aout]"]
+        fc += f";[{aidx}:a]volume=1.0[a1];[{midx}:a]volume=0.16[a2];[a1][a2]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.95[aout]"
+        amap = "[aout]"
     elif audio:
-        cmd += ["-map", f"{aidx}:a"]
+        fc += f";[{aidx}:a]aresample=48000,alimiter=limit=0.95[aout]"
+        amap = "[aout]"
     elif music:
-        cmd += ["-map", f"{midx}:a"]
+        fc += f";[{midx}:a]volume=0.35,aresample=48000,alimiter=limit=0.95[aout]"
+        amap = "[aout]"
+    else:
+        fc += ";[vc]anullsrc=r=48000:cl=stereo[aout]"
+        amap = "[aout]"
+
+    cmd += ["-filter_complex", fc, "-map", vout, "-map", amap]
     total = sum(float(c["duration"]) for c in clips)
     cmd += ["-t", f"{total:.2f}", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
             "-r", str(fps), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out_path]
