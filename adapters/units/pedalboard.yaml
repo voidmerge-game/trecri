@@ -1,0 +1,12 @@
+id: pedalboard
+name: "Pedalboard"
+group: 4
+kind: python
+status: READY
+license: "GPL-3.0"
+install: "pip install pedalboard"
+entry: "pipeline/audio/fx.py"
+input: "WAV"
+output: "WAV معالَج"
+take: "سلسلة مؤثرات: highpass + distortion + reverb = صوت هاتف/راديو/صدى"
+verification: verified

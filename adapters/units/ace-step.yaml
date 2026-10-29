@@ -1,0 +1,12 @@
+id: ace-step
+name: "ACE-Step 1.5"
+group: 4
+kind: python
+status: GPU_ONLY
+license: "Apache-2.0"
+install: "pip install ace-step"
+entry: "ace-step --prompt ... --duration 45"
+input: "prompt موسيقي"
+output: "WAV"
+take: "موسيقى bed بطول 30–60 ثانية"
+verification: verified

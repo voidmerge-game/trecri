@@ -1,0 +1,12 @@
+id: sceneflow
+name: "SceneFlow"
+group: 2
+kind: internal
+status: REPLACED
+license: "—"
+install: "—"
+entry: "pipeline/edit/bind_shots.py"
+input: "shotlist + timeline"
+output: "timeline موثّق"
+take: "ربط shot_id بمقطع فيديو داخل timeline"
+verification: non-github-or-unverified

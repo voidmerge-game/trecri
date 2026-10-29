@@ -1,0 +1,12 @@
+id: bellingcat-toolkit
+name: "Bellingcat Toolkit"
+group: 1
+kind: meta
+status: NOT_NEEDED
+license: "—"
+install: "—"
+entry: "research/checklist.md"
+input: "—"
+output: "قائمة تحقق"
+take: "منهجيته: خطوات التحقق (تحديد زمن، تحديد موقع، بحث عكسي)"
+verification: non-github-or-unverified

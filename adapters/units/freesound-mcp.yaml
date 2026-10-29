@@ -1,0 +1,12 @@
+id: freesound-mcp
+name: "freesound-mcp-server"
+group: 4
+kind: none
+status: REPLACED
+license: "—"
+install: "—"
+entry: "client/freesound.py"
+input: "—"
+output: "—"
+take: "فكرة الاستعلام فقط → تُنفَّذ بعميل HTTP"
+verification: non-github-or-unverified

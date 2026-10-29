@@ -1,0 +1,12 @@
+id: kburns
+name: "kburns-slideshow"
+group: 11
+kind: internal
+status: REPLACED
+license: "—"
+install: "—"
+entry: "ffmpeg -vf zoompan=..."
+input: "صورة ثابتة"
+output: "MP4 بحركة"
+take: "بارامترات حركة zoompan (مدة، اتجاه، تكبير)"
+verification: non-github-or-unverified

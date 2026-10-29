@@ -1,0 +1,12 @@
+id: timelinejs
+name: "TimelineJS3"
+group: 6
+kind: node
+status: READY
+license: "MPL-2.0"
+install: "—"
+entry: "timeline.json + headless screenshot"
+input: "JSON أحداث"
+output: "PNG إطار زمني"
+take: "تخطيط الخط الزمني من JSON"
+verification: verified

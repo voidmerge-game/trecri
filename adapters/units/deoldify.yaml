@@ -1,0 +1,12 @@
+id: deoldify
+name: "DeOldify"
+group: 9
+kind: none
+status: NOT_NEEDED
+license: "MIT"
+install: "—"
+entry: "—"
+input: "—"
+output: "—"
+take: "لا نأخذها — تبعيات مهجورة؛ البديل تلوين OpenCV + إفصاح Colourised"
+verification: verified

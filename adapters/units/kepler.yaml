@@ -1,0 +1,12 @@
+id: kepler
+name: "kepler.gl"
+group: 6
+kind: python
+status: READY
+license: "MIT"
+install: "pip install keplergl"
+entry: "keplergl python + headless screenshot"
+input: "CSV إحداثيات"
+output: "PNG/إطارات"
+take: "خرائط مسارات متحركة + تصدير صورة/إطارات"
+verification: verified

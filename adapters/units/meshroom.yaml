@@ -1,0 +1,12 @@
+id: meshroom
+name: "Meshroom"
+group: 8
+kind: none
+status: NOT_NEEDED
+license: "MPL-2.0"
+install: "—"
+entry: "—"
+input: "—"
+output: "—"
+take: "لا نأخذها — تحتاج GPU + واجهة Qt؛ البديل لوحة إيزومترية SVG"
+verification: verified

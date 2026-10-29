@@ -1,0 +1,12 @@
+id: chronicling-america
+name: "Chronicling America"
+group: 1
+kind: api
+status: READY
+license: "Public Domain"
+install: "—"
+entry: "loc.gov/collections/chronicling-america/?fo=json"
+input: "كلمة/تاريخ/ولاية"
+output: "JSON + JPEG/PDF"
+take: "API البحث + صور الصفحات عالية الدقة + OCR المدمج"
+verification: non-github-or-unverified

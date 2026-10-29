@@ -1,0 +1,12 @@
+id: story-engine
+name: "writers-room-story-engine"
+group: 2
+kind: meta
+status: REPLACED
+license: "—"
+install: "—"
+entry: "catalog/templates/beats.yaml"
+input: "—"
+output: "قالب بنية"
+take: "قالب بنية القصة (beats) كبيانات"
+verification: non-github-or-unverified

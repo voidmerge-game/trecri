@@ -1,0 +1,12 @@
+id: scriptbreak
+name: "scriptbreak"
+group: 2
+kind: internal
+status: REPLACED
+license: "—"
+install: "—"
+entry: "pipeline/script/breakdown.py"
+input: "fountain"
+output: "shotlist.json"
+take: "تفكيك fountain إلى مشاهد ولقطات JSON"
+verification: non-github-or-unverified

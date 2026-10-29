@@ -1,0 +1,12 @@
+id: mmaudio
+name: "MMAudio"
+group: 4
+kind: python
+status: GPU_ONLY
+license: "MIT"
+install: "pip install mmaudio"
+entry: "--video clip.mp4"
+input: "فيديو"
+output: "WAV متزامن"
+take: "foley متزامن مع الحركة"
+verification: verified

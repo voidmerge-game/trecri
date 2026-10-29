@@ -1,0 +1,12 @@
+id: openmontage
+name: "OpenMontage"
+group: 10
+kind: api
+status: REPLACED
+license: "—"
+install: "—"
+entry: "client/archive_org.py / commons.py"
+input: "استعلام"
+output: "ملفات + تراخيص"
+take: "فكرة المونتاج الأرشيفي → Archive.org + Wikimedia APIs"
+verification: non-github-or-unverified

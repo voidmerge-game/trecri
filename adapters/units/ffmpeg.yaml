@@ -1,0 +1,12 @@
+id: ffmpeg
+name: "FFmpeg"
+group: 11
+kind: cli
+status: READY
+license: "LGPL / GPL"
+install: "apt install ffmpeg"
+entry: "ffmpeg ..."
+input: "أي وسيط"
+output: "أي وسيط"
+take: "كل عمليات الوسائط: trim, concat, zoompan, lut3d, loudnorm, subtitles"
+verification: verified

@@ -1,0 +1,12 @@
+id: caseboard
+name: "Win-Hao/caseboard"
+group: 7
+kind: internal
+status: NOT_NEEDED
+license: "—"
+install: "pip install pillow"
+entry: "pipeline/evidence/caseboard.py"
+input: "عناصر + علاقات"
+output: "SVG/PNG"
+take: "فكرة لوحة الأدلة والخيوط → مولّد SVG داخلي"
+verification: non-github-or-unverified

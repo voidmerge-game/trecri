@@ -1,0 +1,12 @@
+id: chromashift
+name: "ChromaShift"
+group: 12
+kind: internal
+status: REPLACED
+license: "—"
+install: "pip install numpy"
+entry: "pipeline/grade/build_lut.py"
+input: "معاملات"
+output: "LUT .cube"
+take: "توليد ملف .cube: تباين، teal/orange، حبيبات، halation"
+verification: non-github-or-unverified

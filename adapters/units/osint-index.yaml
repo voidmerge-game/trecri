@@ -1,0 +1,12 @@
+id: osint-index
+name: "jivoi/awesome-osint"
+group: 1
+kind: meta
+status: NOT_NEEDED
+license: "CC0-1.0"
+install: "—"
+entry: "research/checklist.md"
+input: "هيكل التحقيق"
+output: "قائمة تحقق"
+take: "فهرسه فقط كمرجع لبناء قائمة تحقق تحقيقية — لا كود ولا تثبيت"
+verification: verified

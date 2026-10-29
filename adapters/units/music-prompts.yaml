@@ -1,0 +1,12 @@
+id: music-prompts
+name: "awesome-music-prompts"
+group: 4
+kind: meta
+status: NOT_NEEDED
+license: "—"
+install: "—"
+entry: "catalog/templates/music_prompts.yaml"
+input: "—"
+output: "موجهات"
+take: "صيغ موجهات موسيقية جاهزة كبيانات"
+verification: non-github-or-unverified

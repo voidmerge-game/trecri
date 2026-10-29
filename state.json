@@ -1,25 +1,29 @@
 {
-  "phase": 1,
-  "phases_total": 12,
-  "status": "phase-1-done",
-  "units_total": 50,
-  "next": "await 'واصل' -> phase 2: adapters + real availability check",
-  "rules": {
-    "no_readme_any_format": true,
-    "purpose_stays_hidden": true,
-    "stop_every_phase": true,
-    "video_analysis_forbidden": true,
-    "no_fake_unit_output": true,
-    "no_secrets_in_repo": true,
-    "arabic_chat_only": true,
-    "english_product_only": true
-  },
-  "this_chat": "build only — no script, no audio, no video",
-  "third_party_tasks": [
-    "ask: user gives script or agent writes it — never alter a single character",
-    "agent produces audio and stops at limit",
-    "never analyze video",
-    "never create README of any kind"
-  ],
-  "updated": "2026-10-29"
+ "phase": 2,
+ "phases_total": 12,
+ "status": "phase-2-done",
+ "units_total": 50,
+ "next": "await 'واصل' -> phase 3: research + archiving pipeline wiring",
+ "rules": {
+  "no_readme_any_format": true,
+  "purpose_stays_hidden": true,
+  "stop_every_phase": true,
+  "video_analysis_forbidden": true,
+  "no_fake_unit_output": true,
+  "no_secrets_in_repo": true,
+  "arabic_chat_only": true,
+  "english_product_only": true
+ },
+ "this_chat": "build only — no script, no audio, no video",
+ "third_party_tasks": [
+  "ask: user gives script or agent writes it — never alter a single character",
+  "agent produces audio and stops at limit",
+  "never analyze video",
+  "never create README of any kind"
+ ],
+ "updated": "2026-10-29",
+ "completed": [
+  "phase-1: skeleton + 50-unit catalog",
+  "phase-2: 50 adapters + extract map + real GitHub availability check (25/25 exist)"
+ ]
 }

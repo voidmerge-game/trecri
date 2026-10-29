@@ -1,0 +1,12 @@
+id: stable-audio
+name: "Stable Audio Open"
+group: 4
+kind: python
+status: GPU_ONLY
+license: "Stability Community (NC)"
+install: "pip install stable-audio-tools"
+entry: "--prompt ... --seconds 30"
+input: "prompt"
+output: "WAV"
+take: "حلقات ambience/طبقات جو (غير تجاري)"
+verification: verified

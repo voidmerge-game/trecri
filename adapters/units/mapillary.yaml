@@ -1,0 +1,12 @@
+id: mapillary
+name: "Mapillary"
+group: 6
+kind: api
+status: READY
+license: "BSD-2"
+install: "pip install mapillary_tools"
+entry: "mapillary_tools download --bbox ..."
+input: "bbox"
+output: "JPEG + metadata"
+take: "صور شوارع للموقع عبر API"
+verification: verified

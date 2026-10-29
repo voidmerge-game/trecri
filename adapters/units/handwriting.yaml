@@ -1,0 +1,12 @@
+id: handwriting
+name: "text-to-handwriting"
+group: 5
+kind: python
+status: READY
+license: "MIT"
+install: "—"
+entry: "pipeline/docs/handwriting.py"
+input: "نص إنجليزي"
+output: "PNG"
+take: "مولّد خط يد إنجليزي على ورق"
+verification: verified

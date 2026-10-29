@@ -1,0 +1,12 @@
+id: auto-editor
+name: "auto-editor"
+group: 11
+kind: cli
+status: READY
+license: "Unlicense"
+install: "pip install auto-editor"
+entry: "auto-editor in.wav --edit audio"
+input: "WAV"
+output: "WAV مقصوص"
+take: "قصّ الصمت من التعليق الصوتي"
+verification: verified

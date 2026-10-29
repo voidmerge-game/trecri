@@ -1,0 +1,12 @@
+id: auto-archiver
+name: "Auto-Archiver"
+group: 1
+kind: cli
+status: READY
+license: "MIT"
+install: "pip install auto-archiver"
+entry: "auto-archiver --config feeds.csv"
+input: "روابط المصادر"
+output: "WACZ + بيان أرشفة"
+take: "قدرة الأرشفة قبل الاختفاء: صفحة → WACZ + manifesto بالهاش"
+verification: verified

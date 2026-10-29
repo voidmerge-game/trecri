@@ -1,0 +1,12 @@
+id: forensics-3d
+name: "AI-Forensics-3D-Reconstruction"
+group: 8
+kind: none
+status: NOT_NEEDED
+license: "—"
+install: "—"
+entry: "—"
+input: "—"
+output: "—"
+take: "لا نأخذها — لا مستودع مطابق؛ البديل رسم SVG / Blender headless"
+verification: non-github-or-unverified

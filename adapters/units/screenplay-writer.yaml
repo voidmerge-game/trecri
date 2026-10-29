@@ -1,0 +1,12 @@
+id: screenplay-writer
+name: "ai-screenplay-writer"
+group: 2
+kind: internal
+status: REPLACED
+license: "—"
+install: "pip install fountain-py"
+entry: "pipeline/script/lint.py"
+input: "ملف fountain"
+output: "تقرير أخطاء"
+take: "بنية Fountain القياسية + مدقق استمرارية بسيط"
+verification: non-github-or-unverified

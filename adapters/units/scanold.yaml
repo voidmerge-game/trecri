@@ -1,0 +1,12 @@
+id: scanold
+name: "ScanOld"
+group: 5
+kind: internal
+status: REPLACED
+license: "—"
+install: "pip install pillow"
+entry: "pipeline/docs/clipping.py"
+input: "نص + صورة"
+output: "PNG قصاصة معلَّمة re-created"
+take: "مظهر القصاصة القديمة عبر Pillow (تدرّج، حافة، ورق)"
+verification: non-github-or-unverified

@@ -1,0 +1,12 @@
+id: social-graph
+name: "osint-social-graph-agent"
+group: 7
+kind: python
+status: REPLACED
+license: "—"
+install: "pip install spacy networkx"
+entry: "pipeline/evidence/graph.py"
+input: "نص"
+output: "JSON + SVG"
+take: "NER (spaCy) + networkx لاستخراج أشخاص/أماكن ورسم علاقات"
+verification: non-github-or-unverified

@@ -1,0 +1,12 @@
+id: pycapcut
+name: "pyCapCut"
+group: 11
+kind: none
+status: NOT_NEEDED
+license: "—"
+install: "—"
+entry: "—"
+input: "—"
+output: "—"
+take: "لا نأخذها — صيغة مغلقة؛ البديل OTIO → FCPXML + EDL + SRT"
+verification: non-github-or-unverified

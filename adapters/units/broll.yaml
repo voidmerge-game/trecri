@@ -1,0 +1,12 @@
+id: broll
+name: "broll-fetcher"
+group: 10
+kind: api
+status: REPLACED
+license: "—"
+install: "—"
+entry: "client/pexels.py"
+input: "استعلام"
+output: "MP4 + LICENSE + CREDITS"
+take: "لقطات Pexels/Pixabay + ملف ترخيص لكل ملف"
+verification: non-github-or-unverified

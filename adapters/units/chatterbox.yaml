@@ -1,0 +1,12 @@
+id: chatterbox
+name: "Chatterbox"
+group: 3
+kind: python
+status: GPU_ONLY
+license: "MIT"
+install: "pip install chatterbox-tts"
+entry: "adapter.run(text)->wav"
+input: "نص إنجليزي"
+output: "WAV"
+take: "TTS لمقاطع قصيرة بصوت ثانوي (ليس الراوي)"
+verification: verified

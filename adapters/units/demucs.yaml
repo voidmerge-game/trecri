@@ -1,0 +1,12 @@
+id: demucs
+name: "Demucs"
+group: 4
+kind: cli
+status: CPU_OK
+license: "MIT"
+install: "pip install demucs"
+entry: "demucs -n htdemucs in.wav"
+input: "ملف صوتي"
+output: "4 ملفات WAV"
+take: "فصل stems (vocals/drums/bass/other) للتنظيف"
+verification: verified

@@ -1,0 +1,12 @@
+id: qgis
+name: "QGIS"
+group: 6
+kind: cli
+status: HEAVY
+license: "GPL-2.0"
+install: "apt install qgis (ثقيل)"
+entry: "qgis_process run <alg>"
+input: "طبقة/إحداثيات"
+output: "GeoJSON/PNG"
+take: "حسابات جغرافية headless: مسافات، نطاقات، تحويل إحداثيات"
+verification: verified

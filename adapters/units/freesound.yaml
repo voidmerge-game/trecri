@@ -1,0 +1,12 @@
+id: freesound
+name: "Freesound"
+group: 4
+kind: api
+status: READY
+license: "CC0 / CC-BY"
+install: "—"
+entry: "freesound.org/apiv2/search/text/"
+input: "كلمة/نوع"
+output: "JSON + WAV + license"
+take: "ملفات CC0 + بيانات الترخيص لكل ملف عبر API"
+verification: non-github-or-unverified

@@ -1,0 +1,12 @@
+id: manuscript
+name: "synthetic-manuscript-generator"
+group: 5
+kind: internal
+status: REPLACED
+license: "—"
+install: "pip install pillow opencv-python"
+entry: "pipeline/docs/age.py"
+input: "صورة"
+output: "PNG معتّق"
+take: "تعتيق: بقع، طيّات، تغيّر لون الحبر"
+verification: non-github-or-unverified

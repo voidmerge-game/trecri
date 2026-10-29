@@ -1,0 +1,12 @@
+id: storymachine
+name: "STORYMACHINE"
+group: 2
+kind: internal
+status: REPLACED
+license: "—"
+install: "—"
+entry: "tests/script_lint.py"
+input: "fountain"
+output: "قائمة ملاحظات آلية"
+take: "قواعد تشخيص آلية: طول مشهد، تكرار، غياب مصدر"
+verification: non-github-or-unverified

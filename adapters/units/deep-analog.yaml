@@ -1,0 +1,12 @@
+id: deep-analog
+name: "deep-analog"
+group: 12
+kind: internal
+status: REPLACED
+license: "—"
+install: "pip install numpy pillow"
+entry: "pipeline/grade/look_extract.py"
+input: "صورة مرجعية"
+output: "LUT .cube"
+take: "استخراج LUT ثلاثي الأبعاد من صورة مرجعية"
+verification: non-github-or-unverified

@@ -1,0 +1,12 @@
+id: rawgraphs
+name: "RAWGraphs"
+group: 6
+kind: node
+status: READY
+license: "Apache-2.0"
+install: "—"
+entry: "rawgraphs headless"
+input: "CSV"
+output: "SVG/PNG"
+take: "أنواع رسوم + تصدير SVG"
+verification: verified

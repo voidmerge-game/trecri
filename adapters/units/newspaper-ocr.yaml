@@ -1,0 +1,12 @@
+id: newspaper-ocr
+name: "Newspaper-OCR-V3"
+group: 1
+kind: cli
+status: REPLACED
+license: "—"
+install: "apt install tesseract-ocr poppler-utils; pip install ocrmypdf"
+entry: "ocrmypdf --sidecar out.txt in.pdf out.pdf"
+input: "PDF/صورة"
+output: "نص + hOCR + PDF نصي"
+take: "Tesseract + ocrmypdf بدل الأداة المجهولة"
+verification: non-github-or-unverified

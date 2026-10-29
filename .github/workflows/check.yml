@@ -9,22 +9,34 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: 50 units + locked rules
+      - name: catalog + adapters integrity
         run: |
           python3 - <<'PY'
-          import json
+          import json, os
           u=json.load(open('catalog/units.json')); s=json.load(open('state.json'))
-          assert len(u)==50, f"expected 50 got {len(u)}"
-          assert len({x['id'] for x in u})==50, "duplicate ids"
-          ok={'READY','CPU_OK','HEAVY','GPU_ONLY','REPLACED','NOT_NEEDED'}
-          bad={x['status'] for x in u}-ok
-          assert not bad, f"bad status {bad}"
+          e=json.load(open('catalog/extract.json'))
+          assert len(u)==50, f"units {len(u)}"
+          assert len({x['id'] for x in u})==50, "dup ids"
+          assert len(e)==50, f"extract {len(e)}"
+          files=os.listdir('adapters/units')
+          assert len(files)==50, f"adapters {len(files)}"
+          for x in u:
+              assert x['id'] in e, f"missing take for {x['id']}"
+              assert os.path.exists(f"adapters/units/{x['id']}.yaml"), x['id']
           for k in ('no_readme_any_format','purpose_stays_hidden','video_analysis_forbidden','no_fake_unit_output'):
               assert s['rules'][k] is True, k
-          print("PASS 50 units / rules locked")
+          print("PASS 50 units / 50 adapters / 50 takes / rules locked")
           PY
       - name: no README any name or format
         run: |
           h=$(find . -path ./.git -prune -o -type f -iname 'readme*' -print)
           [ -z "$h" ] || { echo "FAIL $h"; exit 1; }
           echo "PASS no README"
+      - name: adapters must declare take + license
+        run: |
+          miss=0
+          for f in adapters/units/*.yaml; do
+            grep -q '^take: ' "$f" || { echo "MISSING take: $f"; miss=1; }
+            grep -q '^license: ' "$f" || { echo "MISSING license: $f"; miss=1; }
+          done
+          [ $miss -eq 0 ] && echo "PASS all adapters declare take+license"

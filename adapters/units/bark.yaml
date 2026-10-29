@@ -1,0 +1,12 @@
+id: bark
+name: "Bark"
+group: 3
+kind: python
+status: GPU_ONLY
+license: "MIT"
+install: "pip install bark"
+entry: "bark --text '...' "
+input: "نص/وصف"
+output: "WAV"
+take: "همسات وتنهيدات كطبقات ambience قصيرة"
+verification: verified

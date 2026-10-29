@@ -1,0 +1,12 @@
+id: maigret
+name: "Maigret"
+group: 1
+kind: cli
+status: READY
+license: "MIT"
+install: "pip install maigret"
+entry: "maigret <user> --json simple"
+input: "اسم مستعار واحد"
+output: "JSON: حسابات موجودة"
+take: "محرك تعداد الأسماء المستعارة عبر CLI وإخراج JSON بسيط"
+verification: verified

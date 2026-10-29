@@ -1,0 +1,12 @@
+id: silma-tts
+name: "SILMA TTS"
+group: 3
+kind: none
+status: NOT_NEEDED
+license: "غير مؤكد"
+install: "—"
+entry: "—"
+input: "—"
+output: "—"
+take: "لا نأخذها — ترخيصها غير مؤكد"
+verification: non-github-or-unverified

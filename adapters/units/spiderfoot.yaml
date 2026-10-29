@@ -1,0 +1,12 @@
+id: spiderfoot
+name: "SpiderFoot"
+group: 1
+kind: cli
+status: READY
+license: "MIT"
+install: "pip install spiderfoot"
+entry: "sf.py -s <target> -m <modules> -o json"
+input: "هدف/نطاق"
+output: "JSON نتائج"
+take: "وحدة جمع المعلومات + تصدير JSON قابل للتحليل"
+verification: verified

@@ -1,0 +1,12 @@
+id: loc-api
+name: "libofcongress-mcp-server"
+group: 1
+kind: python
+status: REPLACED
+license: "Public Domain"
+install: "requests"
+entry: "client/loc_api.py"
+input: "استعلام"
+output: "JSON نتائج + صور"
+take: "عميل HTTP مباشر لـ loc.gov بدل طبقة MCP"
+verification: non-github-or-unverified

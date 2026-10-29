@@ -1,0 +1,12 @@
+id: cinegrade
+name: "CinegradeAI"
+group: 12
+kind: internal
+status: NOT_NEEDED
+license: "—"
+install: "pip install numpy"
+entry: "pipeline/grade/scene_stats.py"
+input: "إطارات"
+output: "CSV أرقام"
+take: "إحصاءات مشاهد محايدة فقط (بدون أي حكم)"
+verification: non-github-or-unverified

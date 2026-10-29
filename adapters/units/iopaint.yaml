@@ -1,0 +1,12 @@
+id: iopaint
+name: "IOPaint"
+group: 9
+kind: python
+status: CPU_OK
+license: "Apache-2.0"
+install: "pip install iopaint"
+entry: "iopaint run --model=lama"
+input: "صورة + قناع"
+output: "صورة منظّفة"
+take: "inpainting لإزالة خدوش/عناصر غير مرغوبة"
+verification: verified

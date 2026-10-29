@@ -1,0 +1,12 @@
+id: remotion
+name: "Remotion"
+group: 11
+kind: node
+status: READY
+license: "Remotion License ⚠️"
+install: "npm i remotion @remotion/cli"
+entry: "npx remotion render"
+input: "props JSON"
+output: "PNG seq / MP4"
+take: "عناوين وخرائط وخط زمني كـ React → تسلسل PNG"
+verification: verified

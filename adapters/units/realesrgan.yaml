@@ -1,0 +1,12 @@
+id: realesrgan
+name: "Real-ESRGAN"
+group: 9
+kind: python
+status: GPU_ONLY
+license: "BSD-3"
+install: "pip install realesrgan"
+entry: "realesrgan-ncnn-vulkan -i in -o out"
+input: "صورة"
+output: "صورة مكبّرة"
+take: "تكبير 2×/4× بعد الترميم"
+verification: verified

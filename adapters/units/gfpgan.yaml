@@ -1,0 +1,12 @@
+id: gfpgan
+name: "GFPGAN"
+group: 9
+kind: python
+status: GPU_ONLY
+license: "Apache-2.0"
+install: "pip install gfpgan"
+entry: "gfpgan -i in.jpg -o out.jpg"
+input: "صورة"
+output: "صورة مرمّمة"
+take: "ترميم الوجه — أول خطوة قبل التكبير"
+verification: verified
