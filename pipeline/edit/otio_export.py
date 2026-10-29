@@ -2,7 +2,13 @@
 
 بديل مسجَّل لـ pyCapCut (صيغته مغلقة). هذه الصيغ يستوردها CapCut وResolve وPremiere.
 """
-import argparse, json, os
+import argparse, json, os, re
+
+SRC_RE = re.compile(r"\s*\[SRC:[^\]]*\]")
+
+def clean(text):
+    """يزيل علامات المصادر من أي نص يظهر على الشاشة. المصدر يبقى في السجل فقط."""
+    return SRC_RE.sub("", text or "").strip()
 
 def tc(sec, fps=24):
     f = int(round(sec * fps)); h, f = divmod(f, fps * 3600); m, f = divmod(f, fps * 60); s, f = divmod(f, fps)
@@ -27,7 +33,7 @@ def srt(tl, out):
         return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
     blocks = []
     for c in [x for x in tl["clips"] if x.get("asset")]:
-        d = float(c["duration"]); txt = (c.get("text") or "").strip()
+        d = float(c["duration"]); txt = clean(c.get("text"))
         if txt:
             blocks.append(f"{n}\n{t(rec)} --> {t(rec+d)}\n{txt}\n"); n += 1
         rec += d
